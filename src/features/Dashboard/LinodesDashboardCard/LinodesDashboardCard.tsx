@@ -1,4 +1,4 @@
-import { compose, prop, sortBy, take } from 'ramda';
+import { compose, descend, prop, sort, take } from 'ramda';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -167,7 +167,7 @@ const withUpdatingLinodes = connect((state: ApplicationState, ownProps: {}) => {
     linodes: compose(
       mergeEvents(state.events.events),
       take(5),
-      sortBy(prop('label')),
+      sort(descend(prop('created'))),
     )(state.__resources.linodes.entities),
     loading: state.__resources.linodes.loading,
     error: state.__resources.linodes.error,

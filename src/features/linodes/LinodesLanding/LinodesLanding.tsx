@@ -306,7 +306,7 @@ export class ListLinodes extends React.Component<CombinedProps, State> {
           </Hidden>
         </Grid>
         <Grid item xs={12}>
-          <OrderBy data={linodesData} order={'asc'} orderBy={'label'}>
+          <OrderBy data={linodesData} order={'desc'} orderBy={'created'}>
             {({ data, handleOrderChange, order, orderBy }) => {
               const finalProps = {
                 ...componentProps,
