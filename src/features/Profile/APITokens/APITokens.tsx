@@ -2,7 +2,7 @@ import * as React from 'react';
 import { DocumentTitleSegment } from 'src/components/DocumentTitle';
 import { isObjectStorageEnabled } from 'src/constants';
 import APITokenTable from './APITokenTable';
-import ObjectStorageKeys from './ObjectStorageKeys';
+import ObjectStorageKeys from './ObjectStorage/ObjectStorageKeys';
 
 export const APITokens: React.StatelessComponent = () => {
   return (
