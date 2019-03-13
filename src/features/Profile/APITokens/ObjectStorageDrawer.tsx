@@ -51,7 +51,6 @@ export const ObjectStorageDrawer: React.StatelessComponent<
           handleSubmit,
           isSubmitting,
           resetForm
-          /* and other goodies */
         }) => (
           <>
             {status && (
