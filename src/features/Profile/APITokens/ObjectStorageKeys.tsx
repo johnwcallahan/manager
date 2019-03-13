@@ -49,10 +49,6 @@ export const ObjectStorageKeys: React.StatelessComponent<Props> = props => {
   const objectStorageKeyDisplayDialog = useOpenClose();
   const createDrawer = useOpenClose();
 
-  React.useEffect(() => {
-    paginationProps.request();
-  }, []);
-
   const handleSubmit = (
     values: CreateObjectStorageKeyRequest,
     { setSubmitting, setErrors, setStatus }: FormikProps
@@ -72,15 +68,16 @@ export const ObjectStorageKeys: React.StatelessComponent<Props> = props => {
         createDrawer.close();
         objectStorageKeyDisplayDialog.open();
       })
-      .catch(errorResponse => {
+      .catch(err => {
         setSubmitting(false);
 
         const errors = getAPIErrorOrDefault(
-          errorResponse,
-          'There was an issue creating Object Storage Keys.'
+          err,
+          'Error generating Object Storage Key.'
         );
         const mappedErrors = getErrorMap(['label'], errors);
 
+        // If there's a general error, set it as the form status
         if (mappedErrors.none) {
           setStatus(mappedErrors.none);
         }
@@ -88,6 +85,10 @@ export const ObjectStorageKeys: React.StatelessComponent<Props> = props => {
         setErrors(mappedErrors);
       });
   };
+
+  React.useEffect(() => {
+    paginationProps.request();
+  }, []);
 
   return (
     <React.Fragment>

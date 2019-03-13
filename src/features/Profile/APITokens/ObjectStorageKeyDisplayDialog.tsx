@@ -25,18 +25,18 @@ const styles: StyleRulesCallback<ClassNames> = theme => {
   };
 };
 
-interface S3KeyDisplayDialogProps {
+interface ObjectStorageKeyDisplayDialogProps {
   accessKey?: string;
   secretKey?: string;
   isOpen: boolean;
   close: () => void;
 }
 
-type CombinedProps = S3KeyDisplayDialogProps &
+type CombinedProps = ObjectStorageKeyDisplayDialogProps &
   PaginationProps<Linode.ObjectStorageKey> &
   WithStyles<ClassNames>;
 
-export const S3KeyDisplayDialog: React.StatelessComponent<
+export const ObjectStorageKeyDisplayDialog: React.StatelessComponent<
   CombinedProps
 > = props => {
   const { classes, isOpen, close, accessKey, secretKey } = props;
@@ -88,6 +88,8 @@ export const S3KeyDisplayDialog: React.StatelessComponent<
 
 const styled = withStyles(styles);
 
-const enhanced = compose<CombinedProps, S3KeyDisplayDialogProps>(styled);
+const enhanced = compose<CombinedProps, ObjectStorageKeyDisplayDialogProps>(
+  styled
+);
 
-export default enhanced(S3KeyDisplayDialog);
+export default enhanced(ObjectStorageKeyDisplayDialog);
