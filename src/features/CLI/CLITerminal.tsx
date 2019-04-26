@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Terminal from 'terminal-in-react';
+import commands from './commands';
 
 export const CLITerminal: React.FunctionComponent<{}> = () => {
   return (
@@ -15,6 +16,7 @@ export const CLITerminal: React.FunctionComponent<{}> = () => {
       hideTopBar={true}
       showActions={false}
       msg="linode-cli"
+      commands={commands}
     />
   );
 };
