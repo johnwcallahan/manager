@@ -24,6 +24,10 @@ import bucketDrawer, {
   defaultState as bucketDrawerDefaultState,
   State as BucketDrawerState
 } from 'src/store/bucketDrawer/bucketDrawer.reducer';
+import cliDrawer, {
+  defaultState as defaultCLIDrawerState,
+  State as CLIDrawerState
+} from 'src/store/cli/cli.reducer';
 import clusters, {
   defaultState as defaultClustersState,
   State as ClustersState
@@ -170,6 +174,7 @@ export interface ApplicationState {
   volumeDrawer: VolumeDrawerState;
   bucketDrawer: BucketDrawerState;
   createLinode: LinodeCreateState;
+  cliDrawer: CLIDrawerState;
 }
 
 const defaultState: ApplicationState = {
@@ -183,7 +188,8 @@ const defaultState: ApplicationState = {
   tagImportDrawer: tagDrawerDefaultState,
   volumeDrawer: volumeDrawerDefaultState,
   bucketDrawer: bucketDrawerDefaultState,
-  createLinode: linodeCreateDefaultState
+  createLinode: linodeCreateDefaultState,
+  cliDrawer: defaultCLIDrawerState
 };
 
 /**
@@ -219,7 +225,8 @@ const reducers = combineReducers<ApplicationState>({
   volumeDrawer,
   bucketDrawer,
   events,
-  createLinode: linodeCreateReducer
+  createLinode: linodeCreateReducer,
+  cliDrawer
 });
 
 const enhancers = compose(
