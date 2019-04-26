@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { compose } from 'recompose';
-
 import {
   StyleRulesCallback,
   withStyles,
   WithStyles
 } from '@material-ui/core/styles';
-
+import * as React from 'react';
+import { connect, MapDispatchToProps } from 'react-redux';
+import { compose } from 'recompose';
+import { openCLIDrawer } from 'src/store/cli/cli.actions';
 import NavItem, { PrimaryLink } from './NavItem';
 
 type ClassNames = 'root';
@@ -22,7 +22,7 @@ interface Props {
   dividerClasses: string;
 }
 
-type CombinedProps = Props & WithStyles<ClassNames>;
+type CombinedProps = Props & WithStyles<ClassNames> & DispatchProps;
 
 const AdditionalMenuItems: React.FC<CombinedProps> = props => {
   // const [adaError, setAdaError] = React.useState<string>('');
@@ -60,7 +60,9 @@ const AdditionalMenuItems: React.FC<CombinedProps> = props => {
   // };
 
   const links: PrimaryLink[] = [
-    { display: 'Get Help', href: '/support', key: 'help' }
+    { display: 'Get Help', href: '/support', key: 'help' },
+    { display: '</>', onClick: props.openCLIDrawer, key: 'cli' }
+
     // {
     //   display: 'Support Bot',
     //   key: 'chat',
@@ -85,7 +87,26 @@ const AdditionalMenuItems: React.FC<CombinedProps> = props => {
 
 const styled = withStyles(styles);
 
+interface DispatchProps {
+  openCLIDrawer: () => void;
+}
+
+const mapStateToProps = undefined;
+
+const mapDispatchToProps: MapDispatchToProps<
+  DispatchProps,
+  Props
+> = dispatch => ({
+  openCLIDrawer: () => dispatch(openCLIDrawer())
+});
+
+const connected = connect(
+  mapStateToProps,
+  mapDispatchToProps
+);
+
 export default compose<CombinedProps, Props>(
   styled,
+  connected,
   React.memo
 )(AdditionalMenuItems);
