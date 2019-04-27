@@ -22,3 +22,5 @@ export const createResultsTable = (headers: string[], rows: any[][]) => {
   });
   return table;
 };
+
+export const generalCLIErrorString = 'An error occurred.';
