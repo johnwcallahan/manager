@@ -6,7 +6,7 @@ describe('readableBytes', () => {
   });
 
   it('should return B if < 1024', () => {
-    expect(readableBytes(1023).formatted).toBe('1023 B');
+    expect(readableBytes(1023).formatted).toBe('1023 bytes');
   });
 
   it('handles KB, MB, GB', () => {
@@ -29,5 +29,12 @@ describe('readableBytes', () => {
     expect(readableBytes(1024 * 100).formatted).toBe('100 KB');
     expect(readableBytes(1024 * 100.25).formatted).toBe('100 KB');
     expect(readableBytes(1024 * 100.5).formatted).toBe('101 KB');
+  });
+
+  it.only('', () => {
+    // console.log(readableBytes(1073741824 * 50.82, { round: 2, unit: 'MB' }));
+    console.log(
+      readableBytes(1024 * 1024 * 999.84, { round: { GB: 2, MB: 2 } })
+    );
   });
 });

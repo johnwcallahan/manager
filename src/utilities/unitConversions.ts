@@ -27,36 +27,90 @@ export const convertMegabytesTo = (data: number) => {
 // Returns a human-readable version of the byte value passed in.
 // Example: readableBytes(2097152) --> { value: 2, unit: 'MB', formatted: '2 MB }
 // Value and unit are returned separately for flexibility of use.
-export const readableBytes = (num: number) => {
+interface ReadableBytesOptions {
+  round?: number | Partial<Record<StorageSymbol, number>>;
+  unit?: StorageSymbol;
+}
+
+type StorageSymbol = 'bytes' | 'KB' | 'MB' | 'GB' | 'TB';
+
+const units: Record<StorageSymbol, number> = {
+  bytes: 1,
+  KB: 1024,
+  MB: 1024 * 1024,
+  GB: 1024 * 1024 * 1024,
+  TB: 1024 * 1024 * 1024 * 1024
+};
+
+export const readableBytes = (num: number, options?: ReadableBytesOptions) => {
   if (num === 0) {
     return { value: 0, unit: 'bytes', formatted: '0 bytes' };
   }
 
-  const kilobyte = 1024;
+  const symbol = findAppropriateUnit(num, options);
 
-  const power = Math.floor(Math.log(num) / Math.log(kilobyte));
-  const result = num / Math.pow(kilobyte, power);
+  const result = num / units[symbol];
 
-  // Rounding rules that Classic Manager uses.
-  let decimalPlaces;
-  if (result === 0) {
-    decimalPlaces = 0;
-  } else if (result < 10) {
-    decimalPlaces = 2;
-  } else if (result < 100) {
-    decimalPlaces = 1;
-  } else {
-    decimalPlaces = 0;
-  }
-
-  const value = parseFloat(result.toFixed(decimalPlaces));
-
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const unit = sizes[power];
+  const roundedResult = roundResult(result, symbol, options);
 
   return {
-    value,
-    unit,
-    formatted: value + ' ' + unit
+    value: roundedResult,
+    unit: symbol,
+    formatted: roundedResult + ' ' + symbol
   };
+};
+
+const findAppropriateUnit = (value: number, options?: ReadableBytesOptions) => {
+  if (options && options.unit) {
+    return options.unit;
+  } else if (value < units.KB) {
+    return 'bytes';
+  } else if (value < units.MB) {
+    return 'KB';
+  } else if (value < units.GB) {
+    return 'MB';
+  } else {
+    return 'GB';
+  }
+};
+
+export const roundResult = (
+  result: number,
+  symbol: StorageSymbol,
+  options?: ReadableBytesOptions
+) => {
+  if (shouldRoundTo1DecimalPlace(result, symbol, options)) {
+    // Round to 1 decimal place
+    return Math.round(result * 10) / 10;
+  } else if (shouldRoundTo2DecimalPlaces(result, symbol, options)) {
+    // Round to 2 decimal places
+    return Math.round(result * 100) / 100;
+  } else {
+    // Round to nearest whole number
+    return Math.floor(result);
+  }
+};
+
+export const shouldRoundTo1DecimalPlace = (
+  result: number,
+  symbol: StorageSymbol,
+  options?: ReadableBytesOptions
+) => {
+  const shouldRoundOptions =
+    options &&
+    (options.round === 1 || (options.round && options.round[symbol] === 1));
+
+  return (result >= 10 && result < 100) || shouldRoundOptions;
+};
+
+export const shouldRoundTo2DecimalPlaces = (
+  result: number,
+  symbol: StorageSymbol,
+  options?: ReadableBytesOptions
+) => {
+  const shouldRoundOptions =
+    options &&
+    (options.round === 1 || (options.round && options.round[symbol] === 2));
+
+  return (result > 0 && result < 10) || shouldRoundOptions;
 };
