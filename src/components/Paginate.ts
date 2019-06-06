@@ -46,6 +46,7 @@ export default class Paginate extends React.Component<Props, State> {
   };
 
   handlePageChange = (page: number) => {
+    debugger;
     const { scrollToRef } = this.props;
     scrollTo(scrollToRef);
     this.setState({ page });

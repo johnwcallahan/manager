@@ -11,15 +11,9 @@ import {
   withStyles,
   WithStyles
 } from 'src/components/core/styles';
-import TableBody from 'src/components/core/TableBody';
-import TableCell from 'src/components/core/TableCell';
-import TableHead from 'src/components/core/TableHead';
-import TableRow from 'src/components/core/TableRow';
 import Typography from 'src/components/core/Typography';
 import Grid from 'src/components/Grid';
-import PaginationFooter from 'src/components/PaginationFooter';
 import PanelErrorBoundary from 'src/components/PanelErrorBoundary';
-import Table from 'src/components/Table';
 import { resetEventsPolling } from 'src/events';
 import {
   DeleteLinodeConfig,
@@ -29,8 +23,7 @@ import { linodeReboot } from 'src/services/linodes';
 import { getAPIErrorOrDefault } from 'src/utilities/errorUtils';
 import LinodeConfigActionMenu from '../LinodeSettings/LinodeConfigActionMenu';
 import LinodeConfigDrawer from '../LinodeSettings/LinodeConfigDrawer';
-
-import Paginate from 'src/components/Paginate';
+import { LinodeConfigsTable } from './LinodeConfigsTable';
 
 type ClassNames = 'root' | 'headline' | 'addNewWrapper';
 
@@ -90,7 +83,7 @@ class LinodeConfigs extends React.Component<CombinedProps, State> {
   configsPanel = React.createRef();
 
   render() {
-    const { classes, readOnly } = this.props;
+    const { classes, configs, readOnly, linodeId } = this.props;
 
     return (
       <React.Fragment>
@@ -110,7 +103,20 @@ class LinodeConfigs extends React.Component<CombinedProps, State> {
             />
           </Grid>
         </Grid>
-        <this.linodeConfigsTable />
+        <LinodeConfigsTable
+          configs={configs}
+          ref={this.configsPanel}
+          renderActionMenu={(config: Linode.Config): React.ReactElement<{}> => (
+            <LinodeConfigActionMenu
+              config={config}
+              linodeId={linodeId}
+              onBoot={this.handleBoot}
+              onEdit={this.openForEditing}
+              onDelete={this.confirmDelete}
+              readOnly={readOnly}
+            />
+          )}
+        />
         <LinodeConfigDrawer
           linodeConfigId={this.state.configDrawer.linodeConfigId}
           linodeHypervisor={this.props.linodeHypervisor}
@@ -256,67 +262,6 @@ class LinodeConfigs extends React.Component<CombinedProps, State> {
           variant: 'error'
         });
       });
-  };
-
-  linodeConfigsTable = () => {
-    return (
-      <Paginate data={this.props.configs} scrollToRef={this.configsPanel}>
-        {({
-          data: paginatedData,
-          handlePageChange,
-          handlePageSizeChange,
-          page,
-          pageSize,
-          count
-        }) => {
-          return (
-            <React.Fragment>
-              <Table
-                isResponsive={false}
-                aria-label="List of Configurations"
-                border
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Label</TableCell>
-                    <TableCell />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {this.renderConfigTableContent(paginatedData)}
-                </TableBody>
-              </Table>
-              <PaginationFooter
-                count={count}
-                page={page}
-                pageSize={pageSize}
-                handlePageChange={handlePageChange}
-                handleSizeChange={handlePageSizeChange}
-                eventCategory="linode configs"
-              />
-            </React.Fragment>
-          );
-        }}
-      </Paginate>
-    );
-  };
-
-  renderConfigTableContent = (data: Linode.Config[]) => {
-    return data.map(config => (
-      <TableRow key={config.id} data-qa-config={config.label}>
-        <TableCell>{config.label}</TableCell>
-        <TableCell>
-          <LinodeConfigActionMenu
-            config={config}
-            linodeId={this.props.linodeId}
-            onBoot={this.handleBoot}
-            onEdit={this.openForEditing}
-            onDelete={this.confirmDelete}
-            readOnly={this.props.readOnly}
-          />
-        </TableCell>
-      </TableRow>
-    ));
   };
 }
 
