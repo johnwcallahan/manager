@@ -56,7 +56,6 @@ import { MapState } from './store/types';
 import { isObjectStorageEnabled } from './utilities/accountCapabilities';
 
 import ErrorState from 'src/components/ErrorState';
-import CloneLanding from 'src/features/linodes/CloneLanding';
 
 shim(); // allows for .finally() usage
 
