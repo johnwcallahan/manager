@@ -25,6 +25,20 @@ export const getObjectStorageKeys = (params?: any, filters?: any) =>
     setURL(`${API_ROOT}beta/object-storage/keys`)
   ).then(response => response.data);
 
+export const createExpiringObjectStorageKeys = (): Promise<{
+  accessKeyId: string;
+  secretAccessKey: string;
+}> => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve({
+        accessKeyId: process.env.REACT_APP_OBJ_ACCESS_KEY || '',
+        secretAccessKey: process.env.REACT_APP_OBJ_SECRET_KEY || ''
+      });
+    }, 150);
+  });
+};
+
 /**
  * createObjectStorageKeys
  *

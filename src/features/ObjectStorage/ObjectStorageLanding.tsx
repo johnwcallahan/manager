@@ -20,10 +20,13 @@ import DefaultLoader from 'src/components/DefaultLoader';
 import DocumentationButton from 'src/components/DocumentationButton';
 import { DocumentTitleSegment } from 'src/components/DocumentTitle';
 import TabLink from 'src/components/TabLink';
+import { Keys, ObjectStorageContext, dummyCtx } from './common';
 import { ApplicationState } from 'src/store';
 import { getAllBuckets } from 'src/store/bucket/bucket.requests';
 import { requestClusters as _requestClusters } from 'src/store/clusters/clusters.actions';
 import { MapState } from 'src/store/types';
+import { createExpiringObjectStorageKeys } from 'src/services/profile/objectStorageKeys';
+import { OBJContext } from 'src/servicesS3';
 
 const BucketLanding = DefaultLoader({
   loader: () => import('./Buckets/BucketLanding')
@@ -31,6 +34,10 @@ const BucketLanding = DefaultLoader({
 
 const AccessKeyLanding = DefaultLoader({
   loader: () => import('./AccessKeys/AccessKeyLanding')
+});
+
+const BucketDetail = DefaultLoader({
+  loader: () => import('./Buckets/BucketDetail')
 });
 
 type CombinedProps = StateProps & DispatchProps & RouteComponentProps<{}>;
@@ -87,52 +94,82 @@ export const ObjectStorageLanding: React.FunctionComponent<
     return Boolean(matchPath(p, { path: props.location.pathname }));
   };
 
+  // This is to hold our ObjectStorage session context
+  const [ctx, setCtx] = React.useState<OBJContext>(dummyCtx);
+
+  // After the first render, we create a short-lived OBJ access key pair
+  // to use for the session.
+  React.useEffect(() => {
+    createExpiringObjectStorageKeys().then(
+      ({ accessKeyId, secretAccessKey }) => {
+        // Set the context so all children will have access to it.
+        setCtx(new OBJContext(accessKeyId, secretAccessKey));
+      }
+    );
+  }, []);
+
+  const tabIdx = tabs.findIndex(tab => matches(tab.routeName));
+
   return (
     <React.Fragment>
-      <DocumentTitleSegment segment="Object Storage" />
-      <Box display="flex" flexDirection="row" justifyContent="space-between">
-        <Breadcrumb
-          pathname={props.location.pathname}
-          labelTitle="Object Storage"
-          removeCrumbX={1}
-        />
-        <DocumentationButton href="https://www.linode.com/docs/platform/object-storage/how-to-use-object-storage/" />
-      </Box>
-      <AppBar position="static" color="default">
-        <Tabs
-          value={tabs.findIndex(tab => matches(tab.routeName))}
-          onChange={handleTabChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="scrollable"
-          scrollButtons="on"
-        >
-          {tabs.map(tab => (
-            <Tab
-              key={tab.title}
-              data-qa-tab={tab.title}
-              component={React.forwardRef((forwardedProps, ref) => (
-                <TabLink
-                  to={tab.routeName}
-                  title={tab.title}
-                  {...forwardedProps}
-                  ref={ref}
-                />
-              ))}
-            />
-          ))}
-        </Tabs>
-      </AppBar>
-      <Switch>
-        <Route exact strict path={`${url}/buckets`} component={BucketLanding} />
-        <Route
-          exact
-          strict
-          path={`${url}/access-keys`}
-          component={AccessKeyLanding}
-        />
-        <Redirect to={`${url}/buckets`} />
-      </Switch>
+      <ObjectStorageContext.Provider value={ctx}>
+        <DocumentTitleSegment segment="Object Storage" />
+        {/* <pre>{JSON.stringify(objData, null, 2)}</pre> */}
+        <Box display="flex" flexDirection="row" justifyContent="space-between">
+          <Breadcrumb
+            pathname={props.location.pathname}
+            labelTitle="Object Storage"
+            removeCrumbX={1}
+          />
+          <DocumentationButton href="https://www.linode.com/docs/platform/object-storage/how-to-use-object-storage/" />
+        </Box>
+        <AppBar position="static" color="default">
+          <Tabs
+            value={tabIdx > -1 ? tabIdx : 0}
+            onChange={handleTabChange}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="scrollable"
+            scrollButtons="on"
+          >
+            {tabs.map(tab => (
+              <Tab
+                key={tab.title}
+                data-qa-tab={tab.title}
+                component={React.forwardRef((forwardedProps, ref) => (
+                  <TabLink
+                    to={tab.routeName}
+                    title={tab.title}
+                    {...forwardedProps}
+                    ref={ref}
+                  />
+                ))}
+              />
+            ))}
+          </Tabs>
+        </AppBar>
+        <Switch>
+          <Route
+            exact
+            strict
+            path={`${url}/buckets`}
+            component={BucketLanding}
+          />
+          <Route
+            exact
+            strict
+            path={`${url}/access-keys`}
+            component={AccessKeyLanding}
+          />
+          <Route
+            exact
+            strict
+            path={`${url}/buckets/:region/:bucketName`}
+            component={BucketDetail}
+          />
+          <Redirect to={`${url}/buckets`} />
+        </Switch>
+      </ObjectStorageContext.Provider>
     </React.Fragment>
   );
 };
