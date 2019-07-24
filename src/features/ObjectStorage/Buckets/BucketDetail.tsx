@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { Bucket } from 'src/servicesS3';
+import Button from 'src/components/Button';
 import { ObjectStorageContext } from '../common';
 
 interface MatchProps {
@@ -17,7 +17,28 @@ export const BucketDetail: React.FC<CombinedProps> = props => {
   const region = props.match.params.region;
 
   const OBJ = React.useContext(ObjectStorageContext);
-  const [bucket, setBucket] = React.useState<Bucket[] | null>(null);
+
+  const [bucket, setBucket] = React.useState<any>(null);
+  const [file, setFile] = React.useState<File | null>(null);
+
+  const handleSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const uploadFile = () => {
+    if (file) {
+      OBJ.uploadObject(bucketName, region, file).then(res => {
+        console.log('res');
+        console.log(res);
+      });
+    }
+  };
+
+  const deleteObject = () => {
+    OBJ.deleteObject(bucketName, region, 'test.txt');
+  };
 
   React.useEffect(() => {
     OBJ.getBucket(bucketName, region)
@@ -29,7 +50,14 @@ export const BucketDetail: React.FC<CombinedProps> = props => {
       });
   }, [OBJ, bucketName, region]);
 
-  return <pre>{JSON.stringify(bucket, null, 2)}</pre>;
+  return (
+    <React.Fragment>
+      <input type="file" onChange={handleSelectFile} />
+      <Button onClick={uploadFile}>Upload</Button>
+      <Button onClick={deleteObject}>Delete</Button>
+      <pre>{JSON.stringify(bucket, null, 2)}</pre>;
+    </React.Fragment>
+  );
 };
 
 export default BucketDetail;

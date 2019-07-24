@@ -1,4 +1,6 @@
-import * as AWSSign from 'aws-sign';
+import * as S3 from 'aws-sdk/clients/s3';
+// import * as AWSSign from 'aws-sign';
+import * as aws4 from 'aws4';
 import Axios from 'axios';
 import { OBJ_ROOT } from 'src/constants';
 import * as convert from 'xml-js';
@@ -15,8 +17,14 @@ const Request = Axios.create({
 export const formatURL = (bucketName: string, region: string) =>
   `https://${region}.${OBJ_ROOT}/${bucketName}`;
 
-export const formatHost = (bucketName: string, region: string) =>
-  `${region}.${OBJ_ROOT}`;
+export const formatHost = (region: string) => `${region}.${OBJ_ROOT}`;
+
+const s3 = new S3({
+  accessKeyId: process.env.REACT_APP_OBJ_ACCESS_KEY,
+  secretAccessKey: process.env.REACT_APP_OBJ_SECRET_KEY,
+  apiVersion: '2006-03-01',
+  endpoint: 'us-east-1.linodeobjects.com'
+});
 
 /**
  * OBJContext Class
@@ -24,6 +32,7 @@ export const formatHost = (bucketName: string, region: string) =>
 export class OBJContext {
   signer: any;
   isReady: boolean;
+  credentials: { accessKeyId: string; secretAccessKey: string };
 
   constructor(accessKeyId?: string, secretAccessKey?: string) {
     if (!accessKeyId || !secretAccessKey) {
@@ -31,15 +40,49 @@ export class OBJContext {
       return;
     }
 
-    this.signer = new AWSSign({
-      accessKeyId,
-      secretAccessKey
-    });
+    this.credentials = { accessKeyId, secretAccessKey };
+
+    // this.signer = new AWSSign({
+    //   accessKeyId,
+    //   secretAccessKey
+    // });
 
     this.isReady = true;
   }
 
-  getBucket = (bucketName: string, region: string): Promise<Bucket[]> => {
+  // getBucket = (bucketName: string, region: string): Promise<any> => {
+  // if (!this.isReady) {
+  //   return Promise.reject({
+  //     reason: 'OBJ context needs an access key and a secret key',
+  //     code: 'NOT_READY'
+  //   });
+  // }
+  // const opts: any = {
+  //   method: 'GET',
+  //   host: `${bucketName}.${region}.${OBJ_ROOT}`,
+  //   path: `/`
+  //   // url: `https://${bucketName}.${region}.${OBJ_ROOT}/`
+  // };
+  // this.signer.sign(opts);
+  // delete opts.headers.date;
+  // console.log('GET opts');
+  // console.log(opts);
+  // return Request({
+  //   ...opts,
+  //   url: `https://${bucketName}.${region}.${OBJ_ROOT}/`
+  // }).then(res => {
+
+  // });
+  // return new Promise((resolve, reject) => {
+  //   s3.listObjects({ Bucket: bucketName, MaxKeys: 100 }, (err, data) => {
+  //     if (err) {
+  //       reject(err);
+  //     }
+  //     resolve(data);
+  //   });
+  // });
+  // };
+  getBucket = (bucketName: string, region: string): Promise<Bucket> => {
     if (!this.isReady) {
       return Promise.reject({
         reason: 'OBJ context needs an access key and a secret key',
@@ -47,22 +90,94 @@ export class OBJContext {
       });
     }
 
-    const opts = {
-      method: 'GET',
-      host: formatHost(bucketName, region),
-      path: `${bucketName}?list-type=2`,
-      url: formatURL(bucketName, region)
-    };
-
-    this.signer.sign(opts);
-    return Request({ ...opts, headers: { Accept: 'application/xml' } }).then(
-      res => {
-        const json = convert.xml2js(res.data, { compact: true });
-        // tslint:disable-next-line
-        const buckets = json['ListBucketResult'].Contents;
-        return buckets.map((bucket: any) => parseBucket(bucket));
-      }
+    const opts = aws4.sign(
+      {
+        service: 's3',
+        host: `${bucketName}.${region}.${OBJ_ROOT}`
+      },
+      this.credentials
     );
+
+    // aws4 adds a 'Host' header, which the browser will refuse to add.
+    if (opts.headers && opts.headers.Host) {
+      delete opts.headers.Host;
+    }
+
+    return Request({
+      ...opts,
+      url: `https://${bucketName}.${region}.${OBJ_ROOT}/`
+    }).then(res => {
+      const json = convert.xml2js(res.data, { compact: true });
+      // tslint:disable-next-line
+      const buckets = json['ListBucketResult'].Contents;
+      return buckets.map((bucket: any) => parseBucket(bucket));
+    });
+  };
+
+  uploadObject = (bucketName: string, region: string, file: File) => {
+    const opts = aws4.sign(
+      {
+        service: 's3',
+        host: `${bucketName}.${region}.${OBJ_ROOT}`,
+        path: `/${file.name}`,
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'x-amz-content-sha256': 'UNSIGNED-PAYLOAD'
+        }
+      },
+      this.credentials
+    );
+
+    if (opts.headers) {
+      delete opts.headers.Host;
+      delete opts.headers['Content-Length'];
+    }
+
+    return Request({
+      ...opts,
+      data: file,
+      url: `https://${bucketName}.${region}.${OBJ_ROOT}/${file.name}`
+    });
+
+    return new Promise((resolve, reject) => {
+      s3.upload(
+        { Bucket: bucketName, Key: file.name, Body: file },
+        (err, res) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(res);
+        }
+      );
+    });
+  };
+
+  deleteObject = (bucketName: string, region: string, fileName: string) => {
+    const opts = aws4.sign(
+      {
+        service: 's3',
+        host: `${bucketName}.${region}.${OBJ_ROOT}`,
+        path: `/${fileName}`,
+        method: 'DELETE'
+      },
+      this.credentials
+    );
+
+    if (opts.headers) {
+      delete opts.headers.Host;
+    }
+
+    return Request({
+      ...opts,
+      url: `https://${bucketName}.${region}.${OBJ_ROOT}/${fileName}`
+    })
+      .then(res => {
+        console.log('res');
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 }
 
