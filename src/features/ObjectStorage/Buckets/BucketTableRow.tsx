@@ -1,6 +1,6 @@
 import * as React from 'react';
 // @todo: uncomment this Link import when a bucket landing page exists
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   createStyles,
   Theme,
@@ -61,24 +61,24 @@ export const BucketTableRow: React.StatelessComponent<
     >
       <TableCell parentColumn="Name">
         {/* @todo: uncomment this <Link/> when a bucket landing page exists*/}
-        {/* <Link to={`/buckets/${label}`}> */}
-        <Grid container alignItems="center">
-          <Grid item>
-            <EntityIcon variant="bucket" />
-          </Grid>
-          <Grid item>
-            <div className={classes.labelStatusWrapper}>
-              <Typography variant="h3" data-qa-label>
-                {label}
+        <Link to={`/object-storage/buckets/${cluster}/${label}`}>
+          <Grid container alignItems="center">
+            <Grid item>
+              <EntityIcon variant="bucket" />
+            </Grid>
+            <Grid item>
+              <div className={classes.labelStatusWrapper}>
+                <Typography variant="h3" data-qa-label>
+                  {label}
+                </Typography>
+              </div>
+              <Typography variant="body2" data-qa-hostname>
+                {hostname}
               </Typography>
-            </div>
-            <Typography variant="body2" data-qa-hostname>
-              {hostname}
-            </Typography>
+            </Grid>
           </Grid>
-        </Grid>
-        {/* @todo: uncomment this <Link/> when a bucket landing page exists*/}
-        {/* </Link> */}
+          {/* @todo: uncomment this <Link/> when a bucket landing page exists*/}
+        </Link>
       </TableCell>
       <TableCell parentColumn="Objects">
         <Grid>

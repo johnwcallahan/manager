@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import Button from 'src/components/Button';
+import Input from 'src/components/core/Input';
 import { ObjectStorageContext } from '../common';
 
 interface MatchProps {
@@ -29,7 +30,7 @@ export const BucketDetail: React.FC<CombinedProps> = props => {
 
   const uploadFile = () => {
     if (file) {
-      OBJ.uploadObject(bucketName, region, file).then(res => {
+      OBJ.putObjectSignedUrl(bucketName, region, file).then(res => {
         console.log('res');
         console.log(res);
       });
@@ -52,8 +53,10 @@ export const BucketDetail: React.FC<CombinedProps> = props => {
 
   return (
     <React.Fragment>
-      <input type="file" onChange={handleSelectFile} />
-      <Button onClick={uploadFile}>Upload</Button>
+      <Input type="file" onChange={handleSelectFile} />
+      <Button buttonType="primary" onClick={uploadFile}>
+        Upload
+      </Button>
       <Button onClick={deleteObject}>Delete</Button>
       <pre>{JSON.stringify(bucket, null, 2)}</pre>;
     </React.Fragment>

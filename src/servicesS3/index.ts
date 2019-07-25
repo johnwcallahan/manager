@@ -5,14 +5,7 @@ import Axios from 'axios';
 import { OBJ_ROOT } from 'src/constants';
 import * as convert from 'xml-js';
 
-const Request = Axios.create({
-  headers: {
-    'Content-Type': 'application/xml',
-    get: {
-      Accept: '*'
-    }
-  }
-});
+const Request = Axios.create({});
 
 export const formatURL = (bucketName: string, region: string) =>
   `https://${region}.${OBJ_ROOT}/${bucketName}`;
@@ -42,46 +35,8 @@ export class OBJContext {
 
     this.credentials = { accessKeyId, secretAccessKey };
 
-    // this.signer = new AWSSign({
-    //   accessKeyId,
-    //   secretAccessKey
-    // });
-
     this.isReady = true;
   }
-
-  // getBucket = (bucketName: string, region: string): Promise<any> => {
-  // if (!this.isReady) {
-  //   return Promise.reject({
-  //     reason: 'OBJ context needs an access key and a secret key',
-  //     code: 'NOT_READY'
-  //   });
-  // }
-  // const opts: any = {
-  //   method: 'GET',
-  //   host: `${bucketName}.${region}.${OBJ_ROOT}`,
-  //   path: `/`
-  //   // url: `https://${bucketName}.${region}.${OBJ_ROOT}/`
-  // };
-  // this.signer.sign(opts);
-  // delete opts.headers.date;
-  // console.log('GET opts');
-  // console.log(opts);
-  // return Request({
-  //   ...opts,
-  //   url: `https://${bucketName}.${region}.${OBJ_ROOT}/`
-  // }).then(res => {
-
-  // });
-  // return new Promise((resolve, reject) => {
-  //   s3.listObjects({ Bucket: bucketName, MaxKeys: 100 }, (err, data) => {
-  //     if (err) {
-  //       reject(err);
-  //     }
-  //     resolve(data);
-  //   });
-  // });
-  // };
   getBucket = (bucketName: string, region: string): Promise<Bucket> => {
     if (!this.isReady) {
       return Promise.reject({
@@ -114,8 +69,8 @@ export class OBJContext {
     });
   };
 
-  uploadObject = (bucketName: string, region: string, file: File) => {
-    const opts = aws4.sign(
+  putObject = (bucketName: string, region: string, file: File) => {
+    const signedParams = aws4.sign(
       {
         service: 's3',
         host: `${bucketName}.${region}.${OBJ_ROOT}`,
@@ -129,17 +84,39 @@ export class OBJContext {
       this.credentials
     );
 
-    if (opts.headers) {
-      delete opts.headers.Host;
-      delete opts.headers['Content-Length'];
+    if (signedParams.headers) {
+      delete signedParams.headers.Host;
+      delete signedParams.headers['Content-Length'];
     }
 
     return Request({
-      ...opts,
+      ...signedParams,
       data: file,
       url: `https://${bucketName}.${region}.${OBJ_ROOT}/${file.name}`
     });
+  };
 
+  // SIGNED URL
+  putObjectSignedUrl = (bucketName: string, region: string, file: File) => {
+    const url = s3.getSignedUrl('putObject', {
+      Bucket: bucketName,
+      Key: file.name,
+      Expires: 3600,
+      ContentType: file.type
+    });
+
+    return Request({
+      url,
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type
+      },
+      data: file
+    });
+  };
+
+  // AWS SDK
+  putObjectAWSSdk = (bucketName: string, region: string, file: File) => {
     return new Promise((resolve, reject) => {
       s3.upload(
         { Bucket: bucketName, Key: file.name, Body: file },
