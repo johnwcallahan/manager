@@ -77,7 +77,7 @@ export class OBJContext {
         path: `/${file.name}`,
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/octet-stream',
+          'Content-Type': file.type,
           'x-amz-content-sha256': 'UNSIGNED-PAYLOAD'
         }
       },

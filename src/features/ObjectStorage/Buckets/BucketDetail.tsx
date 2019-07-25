@@ -30,7 +30,7 @@ export const BucketDetail: React.FC<CombinedProps> = props => {
 
   const uploadFile = () => {
     if (file) {
-      OBJ.putObjectSignedUrl(bucketName, region, file).then(res => {
+      OBJ.putObject(bucketName, region, file).then(res => {
         console.log('res');
         console.log(res);
       });
