@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { Route, RouteComponentProps, Switch } from 'react-router-dom';
 import DefaultLoader from 'src/components/DefaultLoader';
+import BucketDetail from './BucketDetail/BucketDetailClass';
 
 const ObjectStorageLanding = DefaultLoader({
   loader: () => import('./ObjectStorageLanding')
 });
 
-const BucketDetail = DefaultLoader({
-  loader: () => import('./BucketDetail/BucketDetail')
-});
+// const BucketDetail = DefaultLoader({
+//   loader: () => import('./BucketDetail/BucketDetailClass')
+// });
 
 type CombinedProps = RouteComponentProps;
 

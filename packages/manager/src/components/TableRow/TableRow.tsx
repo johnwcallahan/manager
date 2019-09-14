@@ -82,6 +82,7 @@ class TableRow extends React.Component<CombinedProps> {
 
   render() {
     const { classes, className, rowLink, staticContext, ...rest } = this.props;
+    console.log(classes);
 
     let role;
     switch (typeof rowLink) {
@@ -115,6 +116,6 @@ class TableRow extends React.Component<CombinedProps> {
   }
 }
 
-const styled = withStyles(styles);
+const styled = withStyles(styles, { name: 'hello' });
 
 export default styled(withRouter(TableRow));

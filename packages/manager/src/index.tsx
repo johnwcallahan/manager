@@ -65,26 +65,22 @@ const renderLish = () => (
   <LinodeThemeWrapper>{toggle => <Lish />}</LinodeThemeWrapper>
 );
 
-const renderApp = (props: RouteProps) => (
+const renderApp = (props: RouteProps, toggle: any, spacing: any) => (
   <React.Fragment>
     <SplashScreen />
-    <LinodeThemeWrapper>
-      {(toggle, spacing) => (
-        <SnackBar
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          maxSnack={3}
-          autoHideDuration={4000}
-          data-qa-toast
-          hideIconVariant={true}
-        >
-          <App
-            toggleTheme={toggle}
-            toggleSpacing={spacing}
-            location={props.location}
-          />
-        </SnackBar>
-      )}
-    </LinodeThemeWrapper>
+    <SnackBar
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      maxSnack={3}
+      autoHideDuration={4000}
+      data-qa-toast
+      hideIconVariant={true}
+    >
+      <App
+        toggleTheme={toggle}
+        toggleSpacing={spacing}
+        location={props.location}
+      />
+    </SnackBar>
   </React.Fragment>
 );
 
@@ -94,7 +90,7 @@ const renderCancel = () => (
   </LinodeThemeWrapper>
 );
 
-const renderAuthentication = () => (
+const renderAuthentication = (theme: any, spacing: any) => (
   <Switch>
     <Route exact path="/oauth/callback" component={OAuthCallbackPage} />
     <Route exact path="/admin/callback" component={LoginAsCustomerCallback} />
@@ -105,7 +101,7 @@ const renderAuthentication = () => (
     <AuthenticationWrapper>
       <Switch>
         <Route path="/linodes/:linodeId/lish" render={renderLish} />
-        <Route render={renderApp} />
+        <Route render={props => renderApp(props, theme, spacing)} />
       </Switch>
     </AuthenticationWrapper>
   </Switch>
@@ -115,13 +111,17 @@ ReactDOM.render(
   <React.Fragment>
     {navigator.cookieEnabled ? (
       <Provider store={store}>
-        <Router>
-          <Switch>
-            {/* A place to go that prevents the app from loading while injecting OAuth tokens */}
-            <Route exact path="/null" render={renderNull} />
-            <Route render={renderAuthentication} />
-          </Switch>
-        </Router>
+        <LinodeThemeWrapper>
+          {(toggle, spacing) => (
+            <Router>
+              <Switch>
+                {/* A place to go that prevents the app from loading while injecting OAuth tokens */}
+                <Route exact path="/null" render={renderNull} />
+                <Route render={() => renderAuthentication(toggle, spacing)} />
+              </Switch>
+            </Router>
+          )}
+        </LinodeThemeWrapper>
       </Provider>
     ) : (
       <CookieWarning />

@@ -15,10 +15,10 @@ import Table from 'src/components/Table';
 import TableCell from 'src/components/TableCell';
 import TableRow from 'src/components/TableRow';
 import { OBJECT_STORAGE_DELIMITER as delimiter } from 'src/constants';
-import reloadableWithRouter from 'src/features/linodes/LinodesDetail/reloadableWithRouter';
 import { getObjectList } from 'src/services/objectStorage/buckets';
 import { getQueryParam } from 'src/utilities/queryParams';
 import { ExtendedObject, extendObject } from '../utilities';
+import BucketBreadcrumb from './BucketBreadcrumb';
 import ObjectTableContent from './ObjectTableContent';
 
 const page_size = 100;
@@ -33,8 +33,21 @@ const useStyles = makeStyles((theme: Theme) => ({
   objectTable: {
     marginTop: theme.spacing(4)
   },
-  objectNameColumn: {
+  nameColumn: {
     width: '50%'
+  },
+  sizeColumn: {
+    width: '11%'
+  },
+  nextPageError: {
+    marginTop: theme.spacing(3),
+    textAlign: 'center',
+    color: theme.color.headline
+  },
+  tryAgainText: {
+    color: theme.palette.primary.main,
+    textDecoration: 'underline',
+    cursor: 'pointer'
   }
 }));
 
@@ -151,6 +164,7 @@ const BucketDetail: React.FC<CombinedProps> = props => {
   };
 
   const classes = useStyles();
+  console.log('hook render');
   return (
     <>
       <Box display="flex" flexDirection="row" justifyContent="space-between">
@@ -170,35 +184,46 @@ const BucketDetail: React.FC<CombinedProps> = props => {
         <DocumentationButton href="https://www.linode.com/docs/platform/object-storage/how-to-use-object-storage/" />
       </Box>
       <Divider className={classes.divider} />
+      <BucketBreadcrumb prefix={prefix} />
       <Paper className={classes.objectTable}>
         <Table removeLabelonMobile aria-label="List of Bucket Objects">
           <TableHead>
             <TableRow>
-              <TableCell className={classes.objectNameColumn}>Object</TableCell>
-              <TableCell>Size</TableCell>
-              <TableCell>Region</TableCell>
+              <TableCell className={classes.nameColumn}>Object</TableCell>
+              <TableCell className={classes.sizeColumn}>Size</TableCell>
               <TableCell>Last Modified</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             <ObjectTableContent
-              clusterId={clusterId}
               data={data}
               loading={loading}
               error={generalError}
-              nextPageError={nextPageError}
             />
           </TableBody>
         </Table>
         {/* We shouldn't allow infinite scrolling if we're still loading,
         if we've gotten all objects in the bucket (or folder), or if there
         are errors. */}
-        {!loading && !allObjectsFetched && !generalError && !nextPageError && (
-          <Waypoint onEnter={getNextPage}>
-            <div />
-          </Waypoint>
-        )}
+        {!loading &&
+          !allObjectsFetched &&
+          !generalError &&
+          !nextPageError &&
+          data.length >= 100 && (
+            <Waypoint onEnter={getNextPage}>
+              <div />
+            </Waypoint>
+          )}
       </Paper>
+      {nextPageError && (
+        <Typography variant="subtitle2" className={classes.nextPageError}>
+          The next objects in the list failed to load.{' '}
+          <span className={classes.tryAgainText} onClick={getNextPage}>
+            Click here to try again.
+          </span>
+        </Typography>
+      )}
+
       {/* Only display this message if there were more than 100 objects to
       begin with, as a matter of UX convention. */}
       {allObjectsFetched && data.length >= 100 && (
@@ -208,10 +233,4 @@ const BucketDetail: React.FC<CombinedProps> = props => {
   );
 };
 
-const reloaded = reloadableWithRouter<CombinedProps, MatchProps>(
-  (routePropsOld, routePropsNew) => {
-    return routePropsOld.location.search !== routePropsNew.location.search;
-  }
-);
-
-export default reloaded(BucketDetail);
+export default BucketDetail;

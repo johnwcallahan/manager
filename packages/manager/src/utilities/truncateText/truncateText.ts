@@ -5,15 +5,15 @@
  * @param totalNumOfChars The total number of characters you want to allow before truncation
  */
 const truncateText = (text: string, totalNumOfChars: number) => {
-  // plus 4 to accomodate for the ' ...'
+  // plus 4 to accommodate for the ' ...'
   if (text.length > totalNumOfChars + 4) {
     const beginningText = text.substring(0, totalNumOfChars + 1);
     const charsAfterMax = text.substring(totalNumOfChars + 1);
     const result = [beginningText];
     /*
-     * Now we that we have the inital text, we want to ensure that we're ending
+     * Now we that we have the initial text, we want to ensure that we're ending
      * at the end of a word rather than at the middle, so we want to find
-     * the first occurance of whitespace and end the string there
+     * the first occurrence of whitespace and end the string there.
      */
     for (const letter of charsAfterMax) {
       /*
