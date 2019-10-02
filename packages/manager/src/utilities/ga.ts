@@ -303,3 +303,11 @@ export const sendDomainStatusChangeEvent = (action: 'Enable' | 'Disable') => {
     action
   });
 };
+
+export const sendObjectsQueuedForUploadEvent = (numObjects: number) => {
+  sendEvent({
+    category: 'Object Storage',
+    action: 'Objects queued for upload',
+    label: `${numObjects} objects`
+  });
+};
