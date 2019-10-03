@@ -33,6 +33,7 @@ namespace Linode {
   }
 
   export interface ObjectURL {
+    exists: boolean;
     url: string;
   }
 
