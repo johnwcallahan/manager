@@ -2,7 +2,8 @@ import * as React from 'react';
 import ActionMenu, { Action } from 'src/components/ActionMenu/ActionMenu';
 
 export interface Props {
-  handleClickDelete: () => void;
+  objectName: string;
+  handleClickDelete: (objectName: string) => void;
 }
 
 export const ObjectActionMenu: React.FC<Props> = props => {
@@ -11,7 +12,7 @@ export const ObjectActionMenu: React.FC<Props> = props => {
       {
         title: 'Delete',
         onClick: (e: React.MouseEvent<HTMLElement>) => {
-          props.handleClickDelete();
+          props.handleClickDelete(props.objectName);
           closeMenu();
           e.preventDefault();
         }

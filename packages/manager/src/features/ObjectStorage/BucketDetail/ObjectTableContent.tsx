@@ -75,6 +75,7 @@ const ObjectTableContent: React.FC<Props> = props => {
               key={object.name}
               folderName={object.name}
               displayName={truncateEnd(object._displayName, maxNameWidth)}
+              manuallyCreated={object._manuallyCreated}
             />
           );
         }
@@ -91,7 +92,8 @@ const ObjectTableContent: React.FC<Props> = props => {
              */
             objectSize={object.size || 0}
             objectLastModified={object.last_modified || ''}
-            handleClickDelete={() => handleClickDelete(object.name)}
+            manuallyCreated={object._manuallyCreated}
+            handleClickDelete={handleClickDelete}
           />
         );
       })}
