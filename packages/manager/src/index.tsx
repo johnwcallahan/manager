@@ -125,3 +125,10 @@ ReactDOM.render(
 if (module.hot && !isProduction) {
   module.hot.accept();
 }
+
+// Register the service worker created by SWPrecacheWebpackPlugin.
+(() => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js');
+  }
+})();
