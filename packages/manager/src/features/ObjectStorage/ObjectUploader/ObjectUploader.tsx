@@ -359,7 +359,7 @@ const ObjectUploader: React.FC<CombinedProps> = props => {
                 url={upload.url}
                 dispatch={dispatch}
                 error={
-                  upload.status === 'ERROR' ? 'Error uploading object.' : ''
+                  upload.status === 'ERROR' ? 'Error uploading object!' : ''
                 }
               />
             );
@@ -397,10 +397,7 @@ const ObjectUploader: React.FC<CombinedProps> = props => {
   );
 };
 
-const enhanced = compose<CombinedProps, Props>(
-  withSnackbar,
-  React.memo
-);
+const enhanced = compose<CombinedProps, Props>(withSnackbar, React.memo);
 
 export default enhanced(ObjectUploader);
 

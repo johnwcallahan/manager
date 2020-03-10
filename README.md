@@ -29,7 +29,7 @@ Amazing! Please check out the documentation in the [SDK directory](./packages/li
 
 ## Reaching Out
 
-You can submit feedback in two ways
+You can submit feedback in two ways:
 
 1. Submit feedback to feedback@linode.com
 2. Create a GitHub Issue
