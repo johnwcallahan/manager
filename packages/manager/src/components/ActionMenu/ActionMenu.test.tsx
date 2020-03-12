@@ -32,8 +32,8 @@ describe('ActionMenu', () => {
     ariaLabel: 'label'
   };
   describe('should render', () => {
-    it('a disabled button',async () => {
-      const { getByRole, queryAllByRole} = renderWithTheme(
+    it('a disabled button', async () => {
+      const { getByRole, queryAllByRole } = renderWithTheme(
         <ActionMenu {...baseProps} disabled={true} />
       );
       expect(getByRole('button')).toHaveAttribute('disabled');
@@ -63,13 +63,7 @@ describe('ActionMenu', () => {
     expect(listItems).toHaveLength(NB_OF_ACTIONS);
   });
   it('should pass axe check', async () => {
-    const res = renderWithTheme(
-      <ActionMenu
-        classes={classes}
-        createActions={createActionsMany}
-        ariaLabel="label"
-      />
-    );
+    const res = renderWithTheme(<ActionMenu {...baseProps} />);
     expect(res).toPassAxeCheck();
     expect(await jaxe.axe(res.container)).toHaveNoViolations();
 
@@ -80,6 +74,5 @@ describe('ActionMenu', () => {
     // it does contain the menu (try res.debug())
     expect(res).toPassAxeCheck();
     expect(await jaxe.axe(res.container)).toHaveNoViolations();
-
   });
 });
