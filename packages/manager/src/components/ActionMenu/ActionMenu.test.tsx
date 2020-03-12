@@ -32,11 +32,14 @@ describe('ActionMenu', () => {
     ariaLabel: 'label'
   };
   describe('should render', () => {
-    it('a disabled button', () => {
-      const { getByRole } = renderWithTheme(
+    it('a disabled button',async () => {
+      const { getByRole, queryAllByRole} = renderWithTheme(
         <ActionMenu {...baseProps} disabled={true} />
       );
       expect(getByRole('button')).toHaveAttribute('disabled');
+      fireEvent.click(getByRole('button'));
+      const listItems = await waitForElement(() => queryAllByRole('menuitem'));
+      expect(listItems).toHaveLength(0);
     });
 
     it('an enabled button', () => {
@@ -65,10 +68,18 @@ describe('ActionMenu', () => {
         classes={classes}
         createActions={createActionsMany}
         ariaLabel="label"
-        disabled={true}
       />
     );
     expect(res).toPassAxeCheck();
     expect(await jaxe.axe(res.container)).toHaveNoViolations();
+
+    fireEvent.click(res.getByRole('button'));
+    // await for the menuitem to be rendered
+    await waitForElement(async () => res.getByRole('menu'));
+    // we need to pass the result of render to this function
+    // it does contain the menu (try res.debug())
+    expect(res).toPassAxeCheck();
+    expect(await jaxe.axe(res.container)).toHaveNoViolations();
+
   });
 });
