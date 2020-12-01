@@ -1,4 +1,4 @@
-import { GlobalGrantTypes } from '@linode/api-v4/lib/account';
+import { GlobalGrantTypes, GrantLevel } from '@linode/api-v4/lib/account';
 import store, { ApplicationState } from 'src/store';
 
 export const isRestrictedUser = (_state?: ApplicationState) => {
@@ -6,6 +6,17 @@ export const isRestrictedUser = (_state?: ApplicationState) => {
   return state?.__resources?.profile?.data?.restricted ?? false;
 };
 
-export const hasGrant = (state: ApplicationState, grant: GlobalGrantTypes) => {
-  return state?.__resources?.profile?.data?.grants?.global?.[grant] ?? false;
+export const hasGrant = (
+  state: ApplicationState,
+  grant: GlobalGrantTypes,
+  grantLevel?: GrantLevel
+) => {
+  const foundGrant = state.__resources.profile.data?.grants?.global?.[grant];
+
+  // If given a specific grant level, match it exactly.
+  if (grantLevel) {
+    return foundGrant === grantLevel;
+  }
+
+  return Boolean(foundGrant) ?? false;
 };

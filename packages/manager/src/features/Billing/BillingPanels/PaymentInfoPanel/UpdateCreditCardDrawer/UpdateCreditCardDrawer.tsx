@@ -19,6 +19,7 @@ import accountContainer, {
   Props as AccountContainerProps
 } from 'src/containers/account.container';
 import { cleanCVV } from 'src/features/Billing/billingUtils';
+import useAccountManagement from 'src/hooks/useAccountManagement';
 import useFlags from 'src/hooks/useFlags';
 import { getAPIErrorOrDefault, getErrorMap } from 'src/utilities/errorUtils';
 
@@ -64,6 +65,8 @@ export const UpdateCreditCardDrawer: React.FC<CombinedProps> = props => {
   const [cvv, setCVV] = React.useState<string>('');
 
   const flags = useFlags();
+
+  const { _hasAccountWriteAccess } = useAccountManagement();
 
   React.useEffect(() => {
     if (open) {
@@ -218,7 +221,17 @@ export const UpdateCreditCardDrawer: React.FC<CombinedProps> = props => {
         </Grid>
       </Grid>
       <ActionsPanel>
-        <Button buttonType="primary" onClick={submitForm} loading={submitting}>
+        <Button
+          buttonType="primary"
+          onClick={submitForm}
+          loading={submitting}
+          disabled={!_hasAccountWriteAccess}
+          tooltipText={
+            !_hasAccountWriteAccess
+              ? 'You do not have permission to edit this credit card.'
+              : undefined
+          }
+        >
           Save
         </Button>
         <Button

@@ -14,6 +14,7 @@ import TextField from 'src/components/TextField';
 import AccountContainer, {
   DispatchProps as AccountDispatchProps
 } from 'src/containers/account.container';
+import useAccountManagement from 'src/hooks/useAccountManagement';
 import { v4 } from 'uuid';
 import CreditCard from './CreditCardPayment';
 import PayPal, { paypalScriptSrc } from './Paypal';
@@ -72,6 +73,8 @@ export const PaymentDrawer: React.FC<CombinedProps> = props => {
   const [isPaypalScriptLoaded, setIsPaypalScriptLoaded] = React.useState<
     boolean
   >(false);
+
+  const { _hasAccountWriteAccess } = useAccountManagement();
 
   React.useEffect(() => {
     setUSD(getMinimumPayment(balance));
@@ -157,15 +160,18 @@ export const PaymentDrawer: React.FC<CombinedProps> = props => {
             usd={usd}
             minimumPayment={minimumPayment}
             setSuccess={setSuccess}
+            _hasAccountWriteAccess={_hasAccountWriteAccess}
           />
 
-          <AsyncPaypal
-            key={payPalKey}
-            usd={usd}
-            setSuccess={setSuccess}
-            asyncScriptOnLoad={onScriptLoad}
-            isScriptLoaded={isPaypalScriptLoaded}
-          />
+          {_hasAccountWriteAccess ? (
+            <AsyncPaypal
+              key={payPalKey}
+              usd={usd}
+              setSuccess={setSuccess}
+              asyncScriptOnLoad={onScriptLoad}
+              isScriptLoaded={isPaypalScriptLoaded}
+            />
+          ) : null}
         </Grid>
       </Grid>
     </Drawer>

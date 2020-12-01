@@ -170,7 +170,7 @@ export const UserMenu: React.FC<{}> = () => {
   const [gravatarURL, setGravatarURL] = React.useState<string | undefined>();
   const [gravatarLoading, setGravatarLoading] = React.useState<boolean>(false);
 
-  const { _hasAccountAccess, profile, account } = useAccountManagement();
+  const { _hasAccountReadAccess, profile, account } = useAccountManagement();
 
   const userEmail = profile.data?.email;
   const username = profile.data?.username;
@@ -190,12 +190,12 @@ export const UserMenu: React.FC<{}> = () => {
       {
         display: 'Account',
         href: '/account',
-        hide: account.loading || !_hasAccountAccess
+        hide: account.loading || !_hasAccountReadAccess
       },
       { display: 'My Profile', href: '/profile/display' },
       { display: 'Log Out', href: '/logout' }
     ],
-    [account.loading, _hasAccountAccess]
+    [account.loading, _hasAccountReadAccess]
   );
 
   return (

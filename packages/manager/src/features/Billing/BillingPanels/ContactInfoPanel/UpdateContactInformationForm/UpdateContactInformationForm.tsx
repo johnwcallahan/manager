@@ -19,6 +19,9 @@ import TextField from 'src/components/TextField';
 import AccountContainer, {
   Props as AccountProps
 } from 'src/containers/account.container';
+import ProfileContainer, {
+  StateProps as ProfileProps
+} from 'src/containers/profile.container';
 import withNotifications, {
   WithNotifications
 } from 'src/store/notification/notification.containers';
@@ -69,6 +72,7 @@ interface State {
 }
 
 type CombinedProps = AccountProps &
+  ProfileProps &
   Props &
   WithStyles<ClassNames> &
   WithNotifications;
@@ -497,7 +501,16 @@ class UpdateContactInformationForm extends React.Component<
   };
 
   renderFormActions = () => {
-    const { accountLoading, accountLastUpdated, accountError } = this.props;
+    const {
+      accountLoading,
+      accountLastUpdated,
+      accountError,
+      profileData
+    } = this.props;
+
+    const hasAccountWriteAccess =
+      !profileData?.restricted ||
+      profileData.grants?.global?.account_access === 'read_write';
 
     if ((accountLoading && accountLastUpdated === 0) || accountError.read) {
       return null;
@@ -509,6 +522,12 @@ class UpdateContactInformationForm extends React.Component<
           buttonType="primary"
           onClick={this.submitForm}
           loading={this.state.submitting}
+          disabled={!hasAccountWriteAccess}
+          tooltipText={
+            !hasAccountWriteAccess
+              ? 'You do not have permission to edit contact information.'
+              : undefined
+          }
           data-qa-save-contact-info
         >
           Save
@@ -620,10 +639,12 @@ class UpdateContactInformationForm extends React.Component<
 const styled = withStyles(styles);
 
 const withAccount = AccountContainer();
+const withProfile = ProfileContainer();
 
 const enhanced = compose<CombinedProps, Props>(
   styled,
   withAccount,
+  withProfile,
   withNotifications()
 );
 

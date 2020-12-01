@@ -3,7 +3,8 @@ import { ApplicationState } from 'src/store';
 import { State as ProfileState } from 'src/store/profile/profile.reducer';
 import { State as AccountState } from 'src/store/account/account.reducer';
 import { State as AccountSettingsState } from 'src/store/accountSettings/accountSettings.reducer';
-import { GlobalGrantTypes } from '@linode/api-v4/lib/account';
+import { GlobalGrantTypes, GrantLevel } from '@linode/api-v4/lib/account';
+import { State } from 'src/store/profile/profile.reducer';
 
 export interface AccountManagementProps {
   account: AccountState;
@@ -36,10 +37,19 @@ export const useAccountManagement = () => {
 
   const _isRestrictedUser = profile.data?.restricted ?? false;
 
-  const _hasGrant = (grant: GlobalGrantTypes) =>
-    profile.data?.grants?.global?.[grant] ?? false;
+  const _hasGrant = (
+    grant: GlobalGrantTypes,
+    grantLevel: GrantLevel = 'read_only',
+    _profile: State = profile
+  ) => {
+    return _profile.data?.grants?.global?.[grant] == grantLevel || false;
+  };
 
-  const _hasAccountAccess = !_isRestrictedUser || _hasGrant('account_access');
+  const _hasAccountReadAccess =
+    !_isRestrictedUser || _hasGrant('account_access');
+
+  const _hasAccountWriteAccess =
+    !_isRestrictedUser || _hasGrant('account_access', 'read_write');
 
   const _isManagedAccount = accountSettings?.data?.managed ?? false;
 
@@ -49,7 +59,8 @@ export const useAccountManagement = () => {
     profile,
     _isRestrictedUser,
     _hasGrant,
-    _hasAccountAccess,
+    _hasAccountReadAccess,
+    _hasAccountWriteAccess,
     _isManagedAccount,
     _isLargeAccount
   };

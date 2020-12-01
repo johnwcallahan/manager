@@ -305,13 +305,11 @@ interface ReduxStateProps {
 
 const mapStateToProps: MapState<ReduxStateProps, CombinedProps> = state => ({
   mayUserViewAccountSettings:
-    !isRestrictedUser(state) ||
-    hasGrant(state, 'account_access') === 'read_only' ||
-    hasGrant(state, 'account_access') === 'read_write',
+    !isRestrictedUser(state) || hasGrant(state, 'account_access'),
   mayUserModifyLVSubscription:
     !isRestrictedUser(state) ||
     (hasGrant(state, 'longview_subscription') &&
-      hasGrant(state, 'account_access') === 'read_write')
+      hasGrant(state, 'account_access', 'read_write'))
 });
 
 const connected = connect(mapStateToProps);

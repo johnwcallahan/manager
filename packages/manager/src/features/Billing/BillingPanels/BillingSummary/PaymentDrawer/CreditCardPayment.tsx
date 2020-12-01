@@ -43,10 +43,18 @@ export interface Props {
   usd: string;
   minimumPayment: string;
   setSuccess: SetSuccess;
+  _hasAccountWriteAccess: boolean;
 }
 
 export const CreditCard: React.FC<Props> = props => {
-  const { expiry, lastFour, minimumPayment, setSuccess, usd } = props;
+  const {
+    expiry,
+    lastFour,
+    minimumPayment,
+    setSuccess,
+    usd,
+    _hasAccountWriteAccess
+  } = props;
   const [cvv, setCVV] = React.useState<string>('');
   const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
   const [submitting, setSubmitting] = React.useState<boolean>(false);
@@ -144,10 +152,14 @@ export const CreditCard: React.FC<Props> = props => {
           <Button
             buttonType="primary"
             onClick={handleOpenDialog}
-            disabled={!hasCreditCardOnFile || paymentTooLow}
+            disabled={
+              !hasCreditCardOnFile || paymentTooLow || !_hasAccountWriteAccess
+            }
             tooltipText={
               paymentTooLow
                 ? `Payment amount must be at least ${minimumPayment}.`
+                : !_hasAccountWriteAccess
+                ? 'You do not have permission to make payments on this account.'
                 : undefined
             }
           >

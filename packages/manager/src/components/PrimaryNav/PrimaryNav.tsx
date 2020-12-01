@@ -82,7 +82,7 @@ export const PrimaryNav: React.FC<Props> = props => {
   const { domains, requestDomains } = useDomains();
 
   const {
-    _hasAccountAccess,
+    _hasAccountReadAccess,
     _isManagedAccount,
     _isLargeAccount,
     account
@@ -171,7 +171,7 @@ export const PrimaryNav: React.FC<Props> = props => {
         icon: <Image className="small" />
       },
       {
-        hide: account.lastUpdated === 0 || !_hasAccountAccess,
+        hide: account.lastUpdated === 0 || !_hasAccountReadAccess,
         display: 'Account',
         href: '/account/billing',
         icon: <Account className="small" />,
@@ -182,7 +182,7 @@ export const PrimaryNav: React.FC<Props> = props => {
       showFirewalls,
       _isManagedAccount,
       account.lastUpdated,
-      _hasAccountAccess,
+      _hasAccountReadAccess,
       domains.loading,
       domains.lastUpdated,
       requestDomains
