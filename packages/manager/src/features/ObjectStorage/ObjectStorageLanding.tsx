@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import { Dispatch } from 'redux';
-import { matchPath, RouteComponentProps } from 'react-router-dom';
+import {
+  matchPath,
+  RouteComponentProps,
+  useRouteMatch
+} from 'react-router-dom';
 import Breadcrumb from 'src/components/Breadcrumb';
 import Box from 'src/components/core/Box';
 import { makeStyles, Theme } from 'src/components/core/styles';
@@ -42,16 +46,20 @@ export const ObjectStorageLanding: React.FC<CombinedProps> = props => {
 
   useReduxLoad(['clusters']);
 
+  const dispatch = useDispatch<Dispatch>();
+
   // @todo: dispatch bucket drawer open action
 
-  // // On-the-fly route matching so this component can open the drawer itself.
-  // const createBucketRouteMatch = Boolean(useRouteMatch('/firewalls/create'));
+  // On-the-fly route matching so this component can open the drawer itself.
+  const createBucketRouteMatch = Boolean(
+    useRouteMatch('/object-storage/buckets/create')
+  );
 
-  // React.useEffect(() => {
-  //   if (createBucketRouteMatch) {
-  //     openDrawer();
-  //   }
-  // }, [createBucketRouteMatch, openDrawer]);
+  React.useEffect(() => {
+    if (createBucketRouteMatch) {
+      dispatch(openBucketDrawer());
+    }
+  }, [dispatch, createBucketRouteMatch]);
 
   const { objectStorageClusters } = useObjectStorageClusters();
   const {
@@ -138,7 +146,7 @@ export const ObjectStorageLanding: React.FC<CombinedProps> = props => {
         justifyContent="space-between"
       >
         <Breadcrumb
-          pathname={props.location.pathname}
+          pathname={'object-storage'}
           labelTitle="Object Storage"
           removeCrumbX={1}
         />

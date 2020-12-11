@@ -235,7 +235,7 @@ export const LinodeActionMenu: React.FC<CombinedProps> = props => {
 
       if (matchesSmDown || inTableContext) {
         actions.unshift({
-          title: 'Launch Console',
+          title: 'LISH Console',
           onClick: () => {
             sendLinodeActionMenuItemEvent('Launch Console');
             lishLaunch(linodeId);
