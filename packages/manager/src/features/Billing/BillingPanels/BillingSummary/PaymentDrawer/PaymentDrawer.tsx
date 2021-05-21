@@ -20,6 +20,8 @@ import CreditCard from './CreditCardPayment';
 import PayPal, { paypalScriptSrc } from './Paypal';
 import { SetSuccess } from './types';
 
+import GooglePay from './GooglePay';
+
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   currentBalance: {
@@ -61,6 +63,10 @@ export const getMinimumPayment = (balance: number | false) => {
 
 const AsyncPaypal = makeAsyncScriptLoader(paypalScriptSrc())(PayPal);
 
+const AsyncGooglePay = makeAsyncScriptLoader(
+  () => 'https://pay.google.com/gp/p/js/pay.js'
+)(GooglePay);
+
 export const PaymentDrawer: React.FC<CombinedProps> = (props) => {
   const { accountLoading, balance, expiry, lastFour, open, onClose } = props;
   const classes = useStyles();
@@ -76,6 +82,10 @@ export const PaymentDrawer: React.FC<CombinedProps> = (props) => {
   const [
     isPaypalScriptLoaded,
     setIsPaypalScriptLoaded,
+  ] = React.useState<boolean>(false);
+  const [
+    isGoogleScriptLoaded,
+    setIsGoogleScriptLoaded,
   ] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -125,8 +135,12 @@ export const PaymentDrawer: React.FC<CombinedProps> = (props) => {
     setIsPaypalScriptLoaded(true);
   };
 
+  const onGoogleScriptLoad = () => {
+    setIsGoogleScriptLoaded(true);
+  };
+
   return (
-    <Drawer title="Make a Payment" open={open} onClose={onClose}>
+    <Drawer title="Make a Payment" open={true} onClose={onClose}>
       <Grid container>
         <Grid item xs={12}>
           {successMessage && <Notice success text={successMessage ?? ''} />}
@@ -166,13 +180,18 @@ export const PaymentDrawer: React.FC<CombinedProps> = (props) => {
             setSuccess={setSuccess}
           />
 
-          <AsyncPaypal
+          <AsyncGooglePay
+            asyncScriptOnLoad={onGoogleScriptLoad}
+            isScriptLoaded={isGoogleScriptLoaded}
+          />
+
+          {/* <AsyncPaypal
             key={payPalKey}
             usd={usd}
             setSuccess={setSuccess}
             asyncScriptOnLoad={onScriptLoad}
             isScriptLoaded={isPaypalScriptLoaded}
-          />
+          /> */}
         </Grid>
       </Grid>
     </Drawer>
