@@ -101,7 +101,9 @@ export const initGooglePay = async (
     );
 
     try {
-      return await googlePayInstance.parseResponse(paymentData);
+      const parsed = await googlePayInstance.parseResponse(paymentData);
+      console.log(parsed);
+      return parsed;
     } catch (err) {
       return () => null;
     }
