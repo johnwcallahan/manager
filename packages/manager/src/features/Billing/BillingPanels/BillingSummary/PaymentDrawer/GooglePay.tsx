@@ -101,12 +101,8 @@ export const initGooglePay = async (
     );
 
     try {
-      const parsed = await googlePayInstance.parseResponse(paymentData);
-      alert(parsed);
-      await parsed;
-      return parsed;
+      return await googlePayInstance.parseResponse(paymentData);
     } catch (err) {
-      debugger;
       return () => null;
     }
   };
